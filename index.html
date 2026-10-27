@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Happy Birthday!</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(135deg, #ff758c, #ff7eb3);
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: white;
+      text-align: center;
+      overflow: hidden;
+      position: relative;
+    }
+    .card {
+      background: rgba(255, 255, 255, 0.18);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      padding: 35px;
+      border-radius: 25px;
+      box-shadow: 0 10px 35px rgba(0, 0, 0, 0.2);
+      max-width: 450px;
+      width: 90%;
+      z-index: 10;
+      box-sizing: border-box;
+    }
+    h1 {
+      font-size: 2.3rem;
+      margin-bottom: 10px;
+    }
+    p {
+      font-size: 1.05rem;
+      line-height: 1.6;
+      margin-bottom: 20px;
+    }
+    .countdown-container {
+      display: flex;
+      justify-content: space-around;
+      margin: 20px 0;
+      background: rgba(0, 0, 0, 0.12);
+      padding: 15px;
+      border-radius: 15px;
+    }
+    .countdown-item {
+      font-size: 1.3rem;
+      font-weight: bold;
+    }
+    .countdown-item span {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: normal;
+      text-transform: uppercase;
+      opacity: 0.85;
+    }
+    
+    /* Photo Frame Layout (Hidden initially) */
+    .photo-frame {
+      width: 160px;
+      height: 160px;
+      margin: 0 auto 20px auto;
+      border-radius: 50%;
+      border: 5px solid white;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+      overflow: hidden;
+      background-color: rgba(255, 255, 255, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .photo-frame img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .heart-placeholder {
+      font-size: 4rem;
+      animation: heartbeat 1.2s infinite;
+    }
+    @keyframes heartbeat {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+      100% { transform: scale(1); }
+    }
+
+    button {
+      background-color: #fff;
+      color: #ff4e78;
+      border: none;
+      padding: 12px 25px;
+      font-size: 1rem;
+      font-weight: bold;
+      border-radius: 30px;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+      margin-top: 10px;
+    }
+    button:hover {
+      transform: scale(1.05);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    }
+    
+    /* Surprise Content (Contains photo & message text) */
+    #surprise {
+      display: none;
+      margin-top: 10px;
+      animation: fadeIn 1.2s ease-in-out forwards;
+    }
+
+    /* Final Wish Reveal Container */
+    #final-wish {
+      display: none;
+      animation: popIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    }
+    #final-wish h2 {
+      font-size: 2.8rem;
+      margin: 10px 0;
+      text-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(15px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes popIn {
+      from { opacity: 0; transform: scale(0.85); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    /* Floating Background Hearts */
+    .heart {
+      position: absolute;
+      bottom: -100px;
+      color: rgba(255, 255, 255, 0.65);
+      font-size: 20px;
+      pointer-events: none;
+      animation: floatUp 6s linear infinite;
+    }
+    @keyframes floatUp {
+      0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+      100% { transform: translateY(-110vh) rotate(360deg); opacity: 0; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Background audio file layout tracker -->
+  <audio id="bg-music" src="I wanna be yours - Arctic Monkeys (instrumental slowed).mp3" loop prefetch></audio>
+
+  <div class="card" onclick="startAudioBackup()">
+
+    <!-- Countdown Mode Screen -->
+    <div id="countdown-mode">
+      <h1>The Countdown is On! ❤️</h1>
+      <div class="countdown-container">
+        <div class="countdown-item"><div id="days">00</div><span>Days</span></div>
+        <div class="countdown-item"><div id="hours">00</div><span>Hours</span></div>
+        <div class="countdown-item"><div id="minutes">00</div><span>Mins</span></div>
+        <div class="countdown-item"><div id="seconds">00</div><span>Secs</span></div>
+      </div>
+      <p>Counting down every second until your special day...</p>
+    </div>
+
+    <!-- Birthday Wish Mode (Revealed at 00:00:00) -->
+    <div id="final-wish">
+      <h2>🎂 Happy Birthday! 🎉</h2>
+      <p>The wait is finally over! Something special is waiting for you below...</p>
+      <button id="surprise-btn" onclick="revealSurprise(event)">Click for a Surprise</button>
+      
+      <!-- Surprise Content Group (Photo + Personal Message reveal together) -->
+      <div id="surprise">
+        <div class="photo-frame">
+          <img src="IMG-20261025-WA0004.jpg" alt="❤️" onerror="this.style.display='none'; document.getElementById('fallback-heart').style.display='block';">
+          <div id="fallback-heart" class="heart-placeholder" style="display: none;">❤️</div>
+        </div>
+        <p>✨ You make every single day brighter, and I am so incredibly lucky to have you. May this year bring you endless joy, laughter, and beautiful memories. I love you! ❤️</p>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    // 1. CONFIGURATION: SET HER BIRTHDAY HERE (Year, Month Index 0-11, Day)
+    const birthdayTarget = new Date(2026, 9, 28, 0, 0, 0).getTime();
+    const song = document.getElementById('bg-music');
+
+    function startAudioBackup() {
+      song.play().catch(e => console.log("Audio awaiting user interaction event."));
+    }
+
+    function updateCountdown() {
+      const now = new Date().getTime();
+      const difference = birthdayTarget - now;
+
+      if (difference <= 0) {
+        clearInterval(timerInterval);
+        document.getElementById('countdown-mode').style.display = 'none';
+        document.getElementById('final-wish').style.display = 'block';
+        song.play().catch(e => console.log("Autoplay paused. Awaiting click loop initialization."));
+        return;
+      }
+
+      const d = Math.floor(difference / (1000 * 60 * 60 * 24));
+      const h = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const m = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
+      const s = Math.floor((difference % (1000 * 60)) / 1000);
+
+      document.getElementById('days').innerText = d < 10 ? '0' + d : d;
+      document.getElementById('hours').innerText = h < 10 ? '0' + h : h;
+      document.getElementById('minutes').innerText = m < 10 ? '0' + m : m;
+      document.getElementById('seconds').innerText = s < 10 ? '0' + s : s;
+    }
+    
+    const timerInterval = setInterval(updateCountdown, 1000);
+    updateCountdown();
+
+    // 2. REVEAL SURPRISE: Shows both your photo frame and custom text together
+    function revealSurprise(event) {
+      event.stopPropagation(); 
+      document.getElementById('surprise-btn').style.display = 'none'; // Clear button out
+      document.getElementById('surprise').style.display = 'block';     // Reveal photo + paragraph
+      song.play(); 
+    }
+
+    // Floating Hearts background generator
+    function createHeart() {
+      const heart = document.createElement('div');
+      heart.classList.add('heart');
+      heart.innerHTML = '❤️';
+      heart.style.left = Math.random() * 100 + 'vw';
+      heart.style.animationDuration = Math.random() * 3 + 4 + 's';
+      heart.style.fontSize = Math.random() * 20 + 15 + 'px';
+      document.body.appendChild(heart);
+      setTimeout(() => heart.remove(), 7000);
+    }
+    setInterval(createHeart, 400);
+  </script>
+
+</body>
+</html>
